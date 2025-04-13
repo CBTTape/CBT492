@@ -1,0 +1,60 @@
+Von: Schiradin, Roland (ITZBund BN, extern) <>
+Gesendet: Freitag, 16. Februar 2024 09:32
+An: 'sbgolob@cbttape.org' <sbgolob@cbttape.org>
+Cc: 'Roberto.Bonetta@kyndryl.com' <Roberto.Bonetta@kyndryl.com>
+Betreff: SHOWzOS 8.02
+
+Hi Sam and Roberto,
+
+Attached you will find SHOWzOS 8.02. It should fix all known bugs.
+
+1. Unzip
+2. Binary transfer to your dino (FB80)
+3. Tso receive inda
+4. Run Job SHOWMACS
+5. Assemble and execute SHOWzOS
+6. Provide Feedback
+7. tyvm
+
+Changes
+
+*$802                                                            RS0822
+*     Implement enhancements contributed by Roland Schiradin     RS0822
+*       Saved Literal Pools in the LFAREA section                RS0224
+*       HFS Statistics display gone (HBB77D0)                    RS0224
+*       Display SYSEVENT MEMORY (HBB77E0)                        RS0224
+*       Models for DASD units removed makes no more sense        RS0224
+*         since EAV comes popular now. So all now reported as    RS0224
+*         3390                                                   RS0224
+*       TCP/IP Listener Local-IP:Port was to short               RS0224
+*       Support extented SMF records (256-2047)                  RS0224
+*         IFAQUAAX in SHOWMACS no longer needed for z/OS 2.3     RS0224
+*         and above                                              RS0224
+*       Display SMF Realtime settings                            RS0124
+*       Start using new instructions if enabled by ASMAOPT       RS0124
+*         used LTG   if it makes sense                           RS0124
+*       Display Dedicated Memory (HBB77E0)                       RS0124
+*       New CSRCTABL entry for AIB (HBB77E0)                     RS1223
+*       New ENFCODE 87 with z/S 3.1 (HBB77E0)                    RS1223
+*       New NIP phase with z/S 3.1 (HBB77E0)                     RS1223
+*       Toleration for z/OS 3.1 (HBB77E0)                        RS1123
+*       IARV64 ABEND DC2 RSN xx00AAxx. Need to page fix the      RS0923
+*       workarea. Worked as long as only first 4K was needed     RS0923
+*       for the data. Display for the TRACKINFO                  RS0923
+*       New IPA CRYPCTRS (HBB77C0)                               RS0423
+*       ALLOCxx SWBSTORAGE (HBB77D0)                             RS0323
+*       New Enf Code 86 (HBB77C0) Compliance                     RS0123
+*       New classification rules for WLM                         RS0822
+
+I wish you a nice weekend
+
+Best regards
+Roland
+
+Roland Schiradin
+Externer Mitarbeiter
+ITZBund Bonn
+- Systemmanagement z-Mainframe -
+IV A 24 2 (Referat IV A 2 / Arbeitsbereich 24)
+Telefon: +49-172 1435898
+

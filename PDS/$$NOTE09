@@ -1,0 +1,18 @@
+Notes about SHOWzOS 8.01.  Release date:  September 9, 2022
+
+1   Applicable load module library for this release:  member SHOI801L
+    on CBT File 614.
+
+3.  SHOWzOS 8.01 current applicable members of this pds.
+
+        ISPF statistics are marked 0.01 in the id field.
+
+            SHOWZOS   -  source code
+            SHOWMACS  -  8.01 macro library (new after Sept 2022)
+            SHOWJCL8  -  JCL to assemble, also see SHOWJCLS
+
+4.  "Initial" version of SHOWzOS 8.01 was released in Feb 2022.
+    "Current" version of SHOWzOS 8.01 was released on Sep 09, 2022
+        Use this version if your system can run it.  Otherwise,
+        run SHOWzOS 7.25.
+

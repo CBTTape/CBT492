@@ -1,0 +1,154 @@
+//SBGOLOBO JOB (ACCT#),SHOWMVS,
+// NOTIFY=&SYSUID,
+// CLASS=A,
+// MSGCLASS=X,
+// REGION=0M
+//ASMH EXEC PGM=ASMA90,
+// PARM=(GOFF,NODECK,LIST(133),NOESD,NORLD,OBJ,SIZE(MAX-1M,ABOVE))
+//* Use SHOWZOS if running on z/Architectur and z/OS R3 and above
+//*PARM=(OBJECT,NODECK,BATCH,NOESD,NORLD,NOXREF,SIZE(MAX-1M,ABOVE))
+//* Use SHOWMVS if running on NON z/Architectur OR z/OS R2 and below
+//*PARM=(OBJECT,NODECK,BATCH,NOESD,NORLD,NOXREF,SIZE(MAX-1M,ABOVE))
+//* Use SHOW630 if ShowMvs is not supported
+//SYSIN    DD DISP=SHR,DSN=SBGOLOB.CBT505.FILE492(SHOWZOS)
+//ASMAOPT  DD *
+OPTABLE(Z12,LIST)
+//*YSLIB   DD DISP=SHR,DSN=SYS1.IGDSGCL.MODGEN
+//SYSLIB   DD DISP=SHR,DSN=SYS1.MACLIB,UNIT=3390,VOL=SER=A5RES1  2.5
+//         DD DISP=SHR,DSN=SYS1.MODGEN,UNIT=3390,VOL=SER=A5RES1  2.5
+//* OS/390 (R6) and below
+//* If member EZAZTSEB exsits please move TCPIP.SEZACMAC at the end
+//         DD DISP=SHR,DSN=TCPIP.SEZACMAC,UNIT=3390,VOL=SER=A5RES1
+//         DD DISP=SHR,DSN=CEE.SCEEMAC,UNIT=3390,VOL=SER=A5RES1
+//* z/OS R4 and above (EZBNMIFR API)
+//         DD DISP=SHR,DSN=TCPIP.SEZANMAC,UNIT=3390,VOL=SER=A5RES1
+//         DD DISP=SHR,DSN=SYS1.SHASMAC,UNIT=3390,VOL=SER=A5RES1
+//* to create the SHOWMVS.MACLIB library, execute SHOW801.PDS(SHOWMACS)
+//         DD DISP=SHR,DSN=SBGOLOB.SHOW801.MACLIB ShowMVS macros
+//         DD DISP=SHR,DSN=SBGOLOB.CBT505.FILE492 STRING macro
+//SYSPRINT DD SYSOUT=*
+//SYSUT1   DD UNIT=VIO,SPACE=(CYL,15)
+//SYSLIN   DD UNIT=VIO,SPACE=(TRK,20),DISP=(,PASS),DCB=BLKSIZE=3200
+//ISPLOAD  DD DISP=SHR,DSN=ISP.SISPLOAD(ISPLINK),UNIT=3390,
+//            VOL=SER=A5RES1
+//TMPLINK  DD UNIT=VIO,SPACE=(CYL,(1,,1)),DISP=(,PASS),DSN=&&TMPLINK
+//SYSLMOD  DD DISP=SHR,DSN=SYS1.CBT.LINKLIB       customize
+//*-------------------------------------------------------------------*
+//*                                                                   *
+//*       First test step (TSO Batch)                                 *
+//*                                                                   *
+//*-------------------------------------------------------------------*
+//*        IF ASMH.RC < 8 THEN
+//TMPLINK  EXEC PGM=IEWL,PARM=RENT
+//SYSLIB   DD DISP=SHR,DSN=CEE.SCEELKED,UNIT=3390,VOL=SER=A5RES1
+//SYSLIN   DD DSN=*.ASMH.SYSLIN,DISP=(OLD,PASS)
+//SYSUT1   DD UNIT=VIO,SPACE=(CYL,1)
+//SYSLMOD  DD DSN=&&TMPLINK(SHOWMVS),DISP=(OLD,PASS)
+//SYSPRINT DD SYSOUT=*
+//*        ENDIF
+//*        IF   (ASMH.RC < 8 & TMPLINK.RC < 8) THEN
+//*-------------------------------------------------------------------*
+//*                                                                   *
+//*       This is the link-edit step for SHOWMVS                      *
+//*                                                                   *
+//*-------------------------------------------------------------------*
+//LKED     EXEC PGM=IEWL,PARM='LIST,MAP,RENT,AC=1'
+//ISPLOAD  DD DISP=SHR,DSN=*.ASMH.ISPLOAD
+//SYSLIB   DD DISP=SHR,DSN=CEE.SCEELKED,UNIT=3390,VOL=SER=A5RES1
+//SYSUT1   DD UNIT=VIO,SPACE=(CYL,1)
+//SYSLIN   DD DSN=*.ASMH.SYSLIN,DISP=(OLD,PASS)
+//         DD *
+ ALIAS SHOWZOSX
+ INCLUDE ISPLOAD(ISPLINK)
+ NAME ISFINIT(R)
+//SYSPRINT DD SYSOUT=*
+//SYSLMOD  DD DISP=SHR,DSN=*.ASMH.SYSLMOD
+//*        ENDIF
+//* Invoke SHOWMVS without Authorization
+//*        IF   (ASMH.RC < 8 & TMPLINK.RC < 8) THEN
+//KEY8     EXEC PGM=IKJEFT01,TIME=(,30)
+//STEPLIB  DD DSN=&&TMPLINK,DISP=(OLD,PASS)
+//         DD DISP=SHR,DSN=CEE.SCEERUN            required
+//*        DD DISP=SHR,DSN=DB2.SDSNEXIT           DSNHMCID for V8
+//*        DD DISP=SHR,DSN=DB2.SDSNLOAD           optional
+//SYSTSIN  DD *
+SHOWMVS /* SHORT_PUTLINE */
+SHOWMVS PUTLINE
+//*SHOWMVS SMF=232
+//*SHOWMVS TCP=148.251.068.082:08000
+//SYSTSPRT DD SYSOUT=*
+//ABNLTERM DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*,OUTLIM=20000
+//*        ENDIF
+//* Invoke SHOWMVS with Authorization under TSO (KEY4)
+//         IF   (ASMH.RC < 8 & TMPLINK.RC < 8) THEN
+//KEY4     EXEC PGM=IKJEFT01,TIME=(,59)
+//STEPLIB  DD DISP=SHR,DSN=*.ASMH.SYSLMOD
+//         DD DISP=SHR,DSN=CEE.SCEERUN            required or Linklist
+//*        DD DISP=SHR,DSN=DB2.SDSNEXIT           DSNHMCID for V8
+//*        DD DISP=SHR,DSN=DB2.SDSNLOAD           optional
+//SYSTSIN  DD *
+CALL 'ROLANDS.LOAD(SHOWMVS)' 'PUTLINE'
+//SYSTSPRT DD SYSOUT=*
+//ABNLTERM DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//         ENDIF
+//* Invoke SHOWMVS with Authorization (KEY0)
+//         IF   (ASMH.RC < 8 & TMPLINK.RC < 8) THEN
+//KEY0     EXEC PGM=SHOWMVS
+//STEPLIB  DD DISP=SHR,DSN=*.ASMH.SYSLMOD
+//         DD DISP=SHR,DSN=CEE.SCEERUN            required or Linklist
+//*        DD DISP=SHR,DSN=DB2.SDSNEXIT           DSNHMCID for V8
+//*        DD DISP=SHR,DSN=DB2.SDSNLOAD           optional
+//SHOWMVS  DD SYSOUT=*
+//ABNLTERM DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//         ENDIF
+//
+//* Inactive |||
+//* Invoke SHOWMVS with Authorization writing output to SMF Type 232
+//* PARM SMF works only using source SHOWzOS
+//KEY0SMF EXEC PGM=SHOWMVS,PARM='SMF=232'   Write data to SMF type 232
+//STEPLIB  DD DISP=SHR,DSN=*.ASMH.SYSLMOD
+//         DD DISP=SHR,DSN=CEE.SCEERUN            required or Linklist
+//*        DD DISP=SHR,DSN=DB2.SDSNEXIT           DSNHMCID for V8
+//*        DD DISP=SHR,DSN=DB2.SDSNLOAD           optional
+//SHOWMVS  DD SYSOUT=*
+//ABNLTERM DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//
+//* Inactive |||
+//* Cleanup step
+//IDCAMS   EXEC  PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+ DELETE ROLANDS.SHOWMVS.PRINT
+ DELETE ROLANDS.X2P.SHOWMVS
+//* This step create the SHOWMVS output as PDF file using
+//* a nice utility from Martin Truebner
+//KEY0PDF1 EXEC PGM=SHOWMVS
+//STEPLIB  DD DISP=SHR,DSN=*.ASMH.SYLMOD
+//         DD DISP=SHR,DSN=CEE.SCEERUN            required or Linklist
+//*        DD DISP=SHR,DSN=DB2.SDSNEXIT           DSNHMCID for V8
+//*        DD DISP=SHR,DSN=DB2.SDSNLOAD           optional
+//SHOWMVS  DD  DSN=ROLANDS.SHOWMVS.PRINT,
+//             UNIT=SYSALLDA,SPACE=(TRK,(10,10),RLSE),
+//             LRECL=123,RECFM=FBA,
+//             DISP=(NEW,CATLG,DELETE)
+//ABNLTERM DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//*
+//* Issue TSO RECEIVE INDA(x.x.x(XP2XMIT)) to create
+//* ROLANDS.X2P2C.LOADLIB |||
+//KEY0PDF2 EXEC PGM=X2PMP
+//STEPLIB  DD DISP=SHR,DSN=ROLANDS.X2P2C.LOADLIB
+//FORMLIB  DD DISP=SHR,DSN=ROLANDS.X2P2C.LOADLIB
+//INFILE   DD  DISP=SHR,DSN=ROLANDS.SHOWMVS.PRINT
+//PDFOUT   DD  DSN=ROLANDS.X2P.SHOWMVS,
+//             UNIT=SYSALLDA,SPACE=(TRK,(10,10),RLSE),
+//             LRECL=256,RECFM=FB,  SUPERFLOUSH - JUST FOR THE RECORD
+//             BLKSIZE=2560,
+//             DISP=(NEW,CATLG,DELETE)
+//SYSPRINT DD  SYSOUT=*
+//LOGFILE  DD  SYSOUT=*
+//INPARM   DD  *
+INDRV=3 OUTDRV=3 X2POPT=CMQ DEFFORM='SHOWFRM /B' BKMEXIT=SHOWBKM
